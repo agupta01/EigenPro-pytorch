@@ -2,6 +2,7 @@
 import collections
 import time
 import torch
+import math
 
 import torch.nn as nn
 
@@ -85,8 +86,9 @@ class KernelModel(nn.Module):
         self.pinned_list = []
 
         self.centers = self.tensor(centers, release=True)
-        self.weight = self.tensor(torch.zeros(
-            self.n_centers, y_dim), release=True)
+        # TODO: fix initialization
+        # self.weight = self.tensor(torch.normal(size=(self.n_centers, y_dim), mean=0.0, std=1/math.sqrt(self.n_centers)), release=True)
+        self.weight = self.tensor(torch.zeros((self.n_centers, y_dim)), release=True)
 
     def __del__(self):
         for pinned in self.pinned_list:
