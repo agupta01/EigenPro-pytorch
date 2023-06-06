@@ -160,6 +160,10 @@ class KernelModel(nn.Module):
             y_class = self.tensor(y_eval).argmax(-1)
             p_class = p_eval.argmax(-1)
             eval_metrics['multiclass-acc'] = (1.*(y_class == p_class)).mean()
+        if 'binary-acc' in metrics:
+            y_eval = self.tensor(y_eval)
+            p_class = (p_eval >= 0.5).float()
+            eval_metrics['binary-acc'] = (1.*(y_eval == p_class)).mean()
 
         return eval_metrics
     
@@ -169,6 +173,8 @@ class KernelModel(nn.Module):
             return (preds - targets).pow(2).mean()
         elif metric=="accuracy":
             return 1.*(preds.argmax(-1)==targets.argmax(-1)).mean()*100
+        elif metric=="binaryaccuracy":
+            return 1.*(targets == (preds >= 0.5)).mean()*100.0
 
     def fit(self, x_train, y_train, x_val=None, y_val=None, epochs=10, mem_gb=1,
             print_every=1,
@@ -233,12 +239,12 @@ class KernelModel(nn.Module):
                 print("Weight norm:", self.weight.norm().item())
 
             if run_epoch_eval and ((epoch%print_every)==0):
-                tr_score = self.evaluate(x_train_eval, y_train_eval, bs)
-                tv_score = self.evaluate(x_val, y_val, bs)
+                tr_score = self.evaluate(x_train_eval, y_train_eval, bs, metrics=('mse', 'binary-acc'))
+                tv_score = self.evaluate(x_val, y_val, bs, metrics=('mse', 'binary-acc'))
                 print(f"epoch: {epoch:3d}{four_spaces}"
                       f"time: {time.time() - start_time:04.1f}s{four_spaces}"
-                      f"train accuracy: {tr_score['multiclass-acc']*100:.2f}%{four_spaces}"
-                      f"val accuracy: {tv_score['multiclass-acc']*100:.2f}%{four_spaces}"
+                      f"train accuracy: {tr_score['binary-acc']*100:.2f}%{four_spaces}"
+                      f"val accuracy: {tv_score['binary-acc']*100:.2f}%{four_spaces}"
                       f"train mse: {tr_score['mse']:.2e}{four_spaces}"
                       f"val mse: {tv_score['mse']:.2e}")
                 results[epoch] = (tr_score, tv_score, train_sec)

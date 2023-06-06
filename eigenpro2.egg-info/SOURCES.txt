@@ -1,0 +1,12 @@
+LICENSE
+README.md
+setup.py
+eigenpro2/__init__.py
+eigenpro2/kernels.py
+eigenpro2/models.py
+eigenpro2.egg-info/PKG-INFO
+eigenpro2.egg-info/SOURCES.txt
+eigenpro2.egg-info/dependency_links.txt
+eigenpro2.egg-info/top_level.txt
+eigenpro2/utils/__init__.py
+eigenpro2/utils/eigh.py
