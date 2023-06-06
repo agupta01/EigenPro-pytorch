@@ -168,10 +168,13 @@ class KernelModel(nn.Module):
         elif metric=="accuracy":
             return 1.*(preds.argmax(-1)==targets.argmax(-1)).mean()*100
 
-    def fit(self, x_train, y_train, x_val=None, y_val=None, epochs=1, mem_gb=1,
+    def fit(self, x_train, y_train, x_val=None, y_val=None, epochs=10, mem_gb=1,
             print_every=1,
             n_subsamples=None, top_q=None, bs=None, eta=None,
             n_train_eval=5000, run_epoch_eval=True, scale=1, seed=1):
+
+        print("x_val shape: ", x_val.shape)
+        print("y_val shape: ", y_val.shape)
 
         n_samples, n_labels = y_train.shape
         if n_subsamples is None:
@@ -218,11 +221,14 @@ class KernelModel(nn.Module):
             start_time = time.time()
             epoch_ids = torch.randperm(n_samples, device=x_train.device)
             for batch_num, batch_ids in enumerate(torch.split(epoch_ids, bs)):
+                print("BS:", batch_ids.shape, end="\t")
                 x_batch = self.tensor(x_train[batch_ids])
                 y_batch = self.tensor(y_train[batch_ids])
                 self.eigenpro_iterate(samples, x_batch, y_batch, eigenpro_f,
                                       eta, sample_ids, self.tensor(batch_ids))
                 del x_batch, y_batch, batch_ids
+                print("Number of inf/nan weights:", (torch.isnan(self.weight).sum() + torch.isinf(self.weight).sum()).item(), end="\t")
+                print("Weight norm:", self.weight.norm().item())
 
             if run_epoch_eval and ((epoch%print_every)==0):
                 tr_score = self.evaluate(x_train_eval, y_train_eval, bs)
