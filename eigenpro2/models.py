@@ -229,14 +229,14 @@ class KernelModel(nn.Module):
             start_time = time.time()
             epoch_ids = torch.randperm(n_samples, device=x_train.device)
             for batch_num, batch_ids in enumerate(torch.split(epoch_ids, bs)):
-                print("BS:", batch_ids.shape, end="\t")
+                # print("BS:", batch_ids.shape, end="\t")
                 x_batch = self.tensor(x_train[batch_ids])
                 y_batch = self.tensor(y_train[batch_ids])
                 self.eigenpro_iterate(samples, x_batch, y_batch, eigenpro_f,
                                       eta, sample_ids, self.tensor(batch_ids))
                 del x_batch, y_batch, batch_ids
-                print("Number of inf/nan weights:", (torch.isnan(self.weight).sum() + torch.isinf(self.weight).sum()).item(), end="\t")
-                print("Weight norm:", self.weight.norm().item())
+                # print("Number of inf/nan weights:", (torch.isnan(self.weight).sum() + torch.isinf(self.weight).sum()).item(), end="\t")
+                # print("Weight norm:", self.weight.norm().item())
 
             if run_epoch_eval and ((epoch%print_every)==0):
                 tr_score = self.evaluate(x_train_eval, y_train_eval, bs, metrics=('mse', 'binary-acc'))
