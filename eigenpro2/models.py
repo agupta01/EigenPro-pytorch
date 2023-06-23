@@ -238,7 +238,7 @@ class KernelModel(nn.Module):
                 # print("Number of inf/nan weights:", (torch.isnan(self.weight).sum() + torch.isinf(self.weight).sum()).item(), end="\t")
                 # print("Weight norm:", self.weight.norm().item())
 
-            if run_epoch_eval and ((epoch%print_every)==0):
+            if run_epoch_eval and print_every > 0 and ((epoch%print_every)==0):
                 tr_score = self.evaluate(x_train_eval, y_train_eval, bs, metrics=('mse', 'binary-acc'))
                 tv_score = self.evaluate(x_val, y_val, bs, metrics=('mse', 'binary-acc'))
                 print(f"epoch: {epoch:3d}{four_spaces}"
